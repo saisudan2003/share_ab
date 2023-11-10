@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+</head>
+<body>
+    <h1>Profile</h1>
+    {% if person %}
+        <p>Name: {{ person.name }}</p>
+        <p>Age: {{ person.age }}</p>
+        <p>Gender: {{ person.gender }}</p>
+        <p>Phone: {{ person.phone }}</p>
+        <p>Profile Picture: <img src="{{ person.profile_picture.url }}" alt="Profile Picture"></p>
+    {% else %}
+        <p>No profile found</p>
+    {% endif %}
+</body>
+</html>

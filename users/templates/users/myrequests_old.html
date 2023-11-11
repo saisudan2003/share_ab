@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Requests</title>
+</head>
+<body>
+    <h1>My Requests</h1>
+    {% if requests %}
+        <ul>
+            {% for request in requests %}
+                <li>
+                    <p>Request Owner: {{ request.request_owner.username }}</p>
+                    <p>Trip Date and Time: {{ request.trip_date_time }}</p>
+                    <p>No. of Passengers: {{ request.no_passengers }}</p>
+                    <p>Description: {{ request.desc }}</p>
+                    <form method="GET" action="{% url 'myrequests_single' %}">
+                        <input type="hidden" name="request_id" value="{{ request.id }}">
+                        <button type="submit">View Details</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No requests found</p>
+    {% endif %}
+</body>
+</html>

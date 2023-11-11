@@ -1,6 +1,7 @@
 from django.shortcuts import render,HttpResponse,redirect,get_object_or_404
 from django.contrib.auth.models import User
 from .models import *
+from .models import Request
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -85,66 +86,73 @@ def createprofile(request):
         )
         person.save()
         del request.session['user_id']
-        return redirect('home')
+        return redirect('login')
         
     return render(request, 'users/createprofile.html')
+
+# @login_required
+# def home(request):
+#     current_datetime = timezone.now()
+
+#     all_requests = Request.objects.exclude(request_owner=request.user).filter(
+#         trip_date_time__gte=current_datetime).order_by('trip_date_time')
+
+#     selected_date = request.GET.get('selected_date')
+#     if selected_date:
+#         selected_date_requests = all_requests.filter(
+#             trip_date_time__date=selected_date)
+#         return render(request, 'users/homepage.html', {'requests': selected_date_requests, 'selected_date': selected_date})
+
+#     if request.method == 'POST':
+#         reqid = request.POST.get('request_id')
+#         send_message(request, reqid)
+#     return render(request, 'users/homepage.html', {'requests': all_requests})
 
 @login_required
 def home(request):
     current_datetime = timezone.now()
-
-    # Get all requests excluding the current user and filter by trip_date_time
     all_requests = Request.objects.exclude(request_owner=request.user).filter(
         trip_date_time__gte=current_datetime).order_by('trip_date_time')
 
-    # Check if the user submitted a search request
+    user_requests_status = Requested_users_status.objects.filter(
+        user=request.user)
+
+    excluded_request_ids = [status.request.id for status in user_requests_status]
+
+    all_requests = all_requests.exclude(id__in=excluded_request_ids)
+
     selected_date = request.GET.get('selected_date')
     if selected_date:
-        # Filter requests based on the selected date
         selected_date_requests = all_requests.filter(
             trip_date_time__date=selected_date)
         return render(request, 'users/homepage.html', {'requests': selected_date_requests, 'selected_date': selected_date})
 
-    # If no search is performed, display all requests
+    if request.method == 'POST':
+        reqid = request.POST.get('request_id')
+        send_message(request, reqid)
+
     return render(request, 'users/homepage.html', {'requests': all_requests})
 
-# @login_required
-# def send_message(request, request_id):
-#     if request.method == 'POST':
-#         message_text = request.POST.get('message')
 
-#         # Get the selected request and create a new message
-#         selected_request = get_object_or_404(Request, id=request_id)
-#         message_new = Message.objects.create(
-#             sender=request.user,
-#             receiver=selected_request.request_owner,
-#             request_id=selected_request,
-#             message=message_text,
-#             message_date=timezone.now(),
-#         )
-#         message_new.save()
-#         # Add the user to the requested_users of the request
-#         selected_request.requested_users.add(request.user)
+# def home(request):
+#     current_datetime = timezone.now()
+#     # Exclude requests from the current user and filter by trip_date_time
+#     requests = Request.objects.exclude(request_owner=request.user) \
+#                               .filter(trip_date_time__gte=current_datetime) \
+#                               .order_by('trip_date_time')  # Order by trip_date_time in ascending order
 
-#         # Update the Requested_users_status model initially with status 0
-#         status, created = Requested_users_status.objects.get_or_create(
-#             user=request.user,
-#             request=selected_request,
-#             defaults={'status': 0}
-#         )
+#     reqid = request.POST.get('request_id')
+#     send_message(request, reqid)
+#     return render(request, 'users/homepage.html', {'requests': requests})
 
-#         # Redirect to the 'home' view after successfully sending the message
-#         return redirect('home')
 
-#     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
 
 @login_required
 def send_message(request, request_id):
     if request.method == 'POST':
-        message_text = request.POST.get('message')  # Ensure 'message' is the correct name of your textarea input
+        message_text = request.POST.get('message') 
 
         if message_text:
-            # Get the selected request and create a new message
             selected_request = get_object_or_404(Request, id=request_id)
             message_new = Message.objects.create(
                 sender=request.user,
@@ -153,24 +161,10 @@ def send_message(request, request_id):
                 message=message_text,
                 message_date=timezone.now(),
             )
+            print(message_new)
             message_new.save()
             
-            # Add the user to the requested_users of the request
             selected_request.requested_users.add(request.user)
-
-            # Update the Requested_users_status model initially with status 0
-            # status, created = Requested_users_status.objects.get_or_create(
-            #     user=request.user,
-            #     request=selected_request,
-            #     defaults={'status': 0}
-            # )
-            # status, created = Requested_users_status.objects.get_or_create(
-            #     defaults={'status': 0}
-            # )
-
-            # # Adding the user and request to the many-to-many fields
-            # status.user.add(request.user)
-            # status.request.add(selected_request)
 
             status_query = Requested_users_status.objects.filter(
                 user=request.user,
@@ -178,25 +172,17 @@ def send_message(request, request_id):
             )
 
             if status_query.exists():
-                # If the instance exists, use the first one
                 status = status_query.first()
             else:
-                # If the instance doesn't exist, create a new one
                 status = Requested_users_status.objects.create(
                     user=request.user,
                     request=selected_request,
-                    status=0  # Set the default status here
+                    status=0 
                 )
-
-            # Redirect to the 'home' view after successfully sending the message
             return redirect('home')
 
     # Handle GET request
     return render(request, 'users/send_message.html', {'request_id': request_id})
-def new_send_message(request,request_id):
-    if request.method == 'POST':
-        message_text = request.POST.get('message')  # Ensure 'message' is the correct name of your textarea input
-        send_message()
 
 
 
@@ -205,8 +191,31 @@ def new_send_message(request,request_id):
 # def send_message(request, request_id):
 #     return render(request, 'users/send_message.html', {'request_id': request_id})
 
-def addrequest(request):
-    return HttpResponse("addrequest")
+def addrequests(request):
+    
+    if request.method == 'POST':
+        # Get data from the form
+        trip_date_time = request.POST['trip_date_time']
+        desc = request.POST['desc']
+        no_passengers = request.POST['no_passengers']
+
+        # Assuming request_owner should be the currently logged-in user
+        request_owner = request.user
+
+        # Create a new Request object
+        new_request = Request(
+            request_create_date=timezone.now(),
+            trip_date_time=trip_date_time,
+            desc=desc,
+            no_passengers=no_passengers,
+            request_owner=request_owner,
+        )
+
+        new_request.save()
+
+        return redirect('myrequests')  # Redirect to the same page or any other desired page after saving the request
+
+    return render(request, 'users/addrequests.html')  # Replace 'your_template_name' with the actual template name
 
 def myrequests(request):
     user_id = request.user.id
@@ -322,7 +331,45 @@ def profile(request):
     return render(request, 'users/profile.html', {'person': person})
 
 def editprofile(request):
-    return HttpResponse("edit profile")
+    user_id = request.user.id
+    person = Person.objects.get(user_cred_id=user_id)
+
+    if request.method == 'POST':
+        # Handle form submission
+        person.name = request.POST['name']
+        person.age = request.POST['age']
+        person.gender = request.POST['gender']
+        person.phone = request.POST['phone']
+
+        # Handle the profile picture
+        if 'profile_picture' in request.FILES:
+            person.profile_picture = request.FILES['profile_picture']
+
+        person.save()
+
+        # messages.success(request, 'Profile updated successfully!')
+        return redirect('profile')  # Redirect to the same page or any other desired page after saving changes
+
+    return render(request, 'users/editprofile.html', {'person': person})
+
+def edit_request(request):
+    request_id = request.GET.get('request_id')
+    existing_request = get_object_or_404(Request, id=request_id)
+
+    # Assuming you have some permission logic
+    if not request.user.is_authenticated or request.user != existing_request.request_owner:
+        return render(request, 'error_page.html', {'error_message': 'You do not have permission to edit this request.'})
+
+    if request.method == 'POST':
+        existing_request.trip_date_time = request.POST['trip_date_time']
+        existing_request.desc = request.POST['desc']
+        existing_request.no_passengers = request.POST['no_passengers']
+
+        existing_request.save()
+
+        return redirect('profile')  # Redirect to the same page or any other desired page after saving changes
+
+    return render(request, 'users/edit_request.html', {'existing_data': existing_request})
 
 def view_user_profile(request):
     if request.method == 'POST':

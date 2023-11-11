@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Requests Single</title>
+</head>
+<body>
+    <h1>My Requests Single</h1>
+    <h3>Request Owner: {{ selected_request.request_owner.username }}</h3>
+    <p>Trip Date and Time: {{ selected_request.trip_date_time }}</p>
+    <p>No. of Passengers: {{ selected_request.no_passengers }}</p>
+    <p>Description: {{ selected_request.desc }}</p>
+
+    
+        <h2>Requested Users and Messages</h2>
+        <ul>
+            {% for message in messages %}
+                <li>
+                    <h3>Message sender: {{ message.sender.username }}</h3>
+                    <p>Message: {{ message.message }}</p>
+                    <p>Message Date: {{ message.message_date }}</p>
+        
+                    <form method="post" action="{% url 'accept_request' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="message_id" value="{{ message.id }}">
+                        <button type="submit">Accept</button>
+                    </form>
+        
+                    <form method="post" action="{% url 'decline_request' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="message_id" value="{{ message.id }}">
+                        <button type="submit">Decline</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+        
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Requests Single</title>
+</head>
+<body>
+    <h1>My Requests Single</h1>
+    <h3>Request Owner: {{ selected_request.request_owner.username }}</h3>
+    <p>Trip Date and Time: {{ selected_request.trip_date_time }}</p>
+    <p>No. of Passengers: {{ selected_request.no_passengers }}</p>
+    <p>Description: {{ selected_request.desc }}</p>
+
+    <h2>Requested Users and Messages</h2>
+    <ul>
+        {% for entry in messages %}
+            <h3>Message sender: {{ entry.message.sender.username }}</h3>
+            <p>Message: {{ entry.message.message }}</p>
+            <p>Message Date: {{ entry.message.message_date }}</p>
+
+            {% if entry.status == 0 %}
+                <form method="post" action="{% url 'accept_request' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="message_id" value="{{ entry.message.id }}">
+                    <button type="submit">Accept</button>
+                </form>
+
+                <form method="post" action="{% url 'decline_request' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="message_id" value="{{ entry.message.id }}">
+                    <button type="submit">Decline</button>
+                </form>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+
+<h2>Requested Users and Messages</h2>
+    <ul>
+        {% for message in messages %}
+            <h3>Message sender: {{ message.sender.username }}</h3>
+            <p>Message: {{ message.message }}</p>
+            <p>Message Date: {{ message.message_date }}</p>
+
+            <form method="post" action="{% url 'accept_request' %}">
+                {% csrf_token %}
+                <input type="hidden" name="message_id" value="{{ entry.message.id }}">
+                <button type="submit">Accept</button>
+            </form>
+
+            <form method="post" action="{% url 'decline_request' %}">
+                {% csrf_token %}
+                <input type="hidden" name="message_id" value="{{ entry.message.id }}">
+                <button type="submit">Decline</button>
+            </form>
+            
+        {% endfor %}
+    </ul> -->
+

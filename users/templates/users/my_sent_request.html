@@ -1,32 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My Sent Request Status</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Nunito&family=Pixelify+Sans&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: antiquewhite;
+            color: #333;
+        }
+        .navbar {
+            background-color: #333;
+        }
+        .logo {
+            margin-left: 20px;
+            font-family: 'Dancing Script', cursive;
+            font-family: 'Nunito', sans-serif;
+            font-family: 'Pixelify Sans', sans-serif;
+            font-size: large;
+            color: #fff;
+        }
+        .navbar-brand {
+            margin-right: 20px;
+            padding: 10px;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+            color: #fff;
+        }
+        .navbar-nav {
+            margin-right: 60px;
+            padding-right: 30px;
+        }
+        .nav-link {
+            margin: 0 10px;
+            padding: 10px;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+            color: #fff;
+        }
+        .nav-link:hover {
+            color: #ffc107;
+        }
+        .navbar-brand:hover {
+            color: #ffc107;
+        }
+        .feature {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            height: 300px; 
+        }
+        .feature img {
+            flex: 1; 
+            max-height: 100%; 
+            object-fit: cover; 
+            margin-bottom: 10px;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        .card-body {
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+            border-radius: 15px; 
+            color: #333; 
+        }
+        .custom-card {
+            width: 70%;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.8); 
+            transition: transform 0.3s ease;
+            border-radius: 15px; 
+            color: #333; 
+        }
+        
+        .custom-card:hover {
+            transform: scale(1.05);
+        }
+        .btn-send-request {
+            background-color: #4CAF50; 
+            color: #fff; 
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px; 
+        }
+        .btn-send-request:hover {
+            background-color: #357ae8; 
+            opacity: 0.9;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+        .search-button {
+            background-color: #04AA6D;
+            color: #fff; 
+            border: none;
+            padding: 8px 12px;
+            margin-left: 10px;
+            cursor: pointer;
+            border-radius: 5px; 
+        }
+        .search-button:hover {
+            opacity: 0.9;
+        }
+        .search-field {
+            display: none;
+            padding: 8px;
+            margin-left: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px; 
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Toggle the search field on button click
+            $('.search-button').click(function() {
+                $('.search-field').toggle();
+            });
+
+            // Intercept the form submission to send the message via AJAX
+            $('#send-message-form').submit(function (event) {
+                event.preventDefault();
+
+                // Collect form data
+                var receiverId = $('#receiver-id').val();
+                var requestId = $('#request-id').val();
+                var messageText = $('#message-text').val();
+
+                // Send AJAX request
+                $.ajax({
+                    type: 'POST',
+                    url: '/send_message/',  
+                    data: {
+                        receiver_id: receiverId,
+                        request_id: requestId,
+                        message: messageText,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.status === 'success') {
+                            // Assuming you have a function to append the new message to the message box
+                            appendMessage(messageText);
+                            // Clear the input field
+                            $('#message-text').val('');
+                        } else {
+                            console.error('Failed to send message');
+                        }
+                    },
+                    error: function (error) {
+                        console.error('Error in AJAX request');
+                    }
+                });
+            });
+
+            // Function to append a new message to the message box
+            function appendMessage(message) {
+                // Add your logic here to append the message to the message box
+                console.log('Message sent:', message);
+            }
+        });
+    </script>
 </head>
 <body>
-    <h1>My Sent Request Status</h1>
+    <nav class="navbar navbar-expand-lg bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand text-light logo" href="#">Cab-Share</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end align-items-center" id="navbarSupportedContent">
+                <ul class="navbar-nav justify-content-end align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link active text-light" aria-current="page" href="/home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/login">Logout</a>
+                    </li>
 
-    {% for data in request_data %}
-        <div>
-            <p>Request Owner: {{ data.request_owner.username }}</p>
-            <p>Trip Date Time: {{ data.trip_date_time }}</p>
-            <p>Message: {{ data.latest_message }}</p>
-            <p>Message Date: {{ data.latest_message_date }}</p>
-            
-            {% if data.status == 0 %}
-                <p>Status: Pending</p>
-            {% elif data.status == -1 %}
-                <p>Status: Declined</p>
-            {% elif data.status == 1 %}
-                <p>Status: Accepted</p>
-            {% endif %}
-            
-            <!-- Add more information as needed -->
+                </ul>
+            </div>
         </div>
-        <hr>
-    {% endfor %}
-    
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <h1>My Sent Request Status</h1>
+
+            {% for data in request_data %}
+                <div class="col-md-9 mb-3 custom-card">
+                    <div class="card">
+                        <div class="card-header text-center card-body">
+                            <h5>Message sent to : {{ data.request_owner.username }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Trip Date Time: {{ data.trip_date_time }}</p>
+                            <p>Message: {{ data.latest_message }}</p>
+                            <p>Message Date: {{ data.latest_message_date }}</p>
+                            
+                            {% if data.status == -1 %}
+                            <p style="color: red; font-weight: bold; font-size: 1.2em;">Status: Declined</p>
+                        {% elif data.status == 0 %}
+                            <p style="color: orange; font-weight: bold; font-size: 1.2em;">Status: Pending</p>
+                        {% elif data.status == 1 %}
+                            <p style="color: green; font-weight: bold; font-size: 1.2em;">Status: Accepted</p>
+                        {% endif %}
+                            
+                            <!-- Add more information as needed -->
+                        </div>
+                    </div>
+                </div>
+                <hr>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+2rO5EofzKxJv3jIdt+5A/lP6fiTN+TE5tbbvXGTCeMSojMEq0L3dWVvoKxNh" crossorigin="anonymous"></script>
 </body>
 </html>

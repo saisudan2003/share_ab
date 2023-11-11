@@ -3,18 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
+    <title>User Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Nunito&family=Pixelify+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: antiquewhite;
+        }
+
+        .navbar {
+            background-color: black;
+        }
+
+        .logo {
+            margin-left: 20px;
+            font-family: 'Dancing Script', cursive;
+            font-family: 'Nunito', sans-serif;
+            font-family: 'Pixelify Sans', sans-serif;
+            font-size: large;
+        }
+
+        .navbar-brand {
+            margin-right: 20px;
+            padding: 10px;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+
+        .navbar-nav {
+            margin-right: 60px;
+            padding-right: 30px;
+        }
+
+        .nav-link {
+            margin: 0 10px;
+            padding: 10px;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #ffc107;
+        }
+
+        .navbar-brand:hover {
+            color: #ffc107;
+        }
+        .profile-card {
+            width: 60%; /* Adjust the width as needed */
+            height: 60vh; /* Adjust the height as needed */
+            margin: 0 auto;
+            margin-top: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center the items horizontally */
+            justify-content: center; /* Center the items vertically */
+        }
+        
+        .profile-card img {
+            width: 30%;
+            flex: 0 0 200px; /* Fixed height for the image */
+            object-fit: cover;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        
+
+        .profile-card-body {
+            padding: 20px;
+        }
+
+        .profile-picture {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Profile</h1>
-    {% if person %}
-        <p>Name: {{ person.name }}</p>
-        <p>Age: {{ person.age }}</p>
-        <p>Gender: {{ person.gender }}</p>
-        <p>Phone: {{ person.phone }}</p>
-        <p>Profile Picture: <img src="{{ person.profile_picture.url }}" alt="Profile Picture"></p>
-    {% else %}
-        <p>No profile found</p>
-    {% endif %}
+    <nav class="navbar navbar-expand-lg bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand text-light logo" href="#">Cab-Share</a>
+            <!-- Add your navigation links if needed -->
+            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/login">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12 mx-auto">
+                <div class="profile-card">
+                    <img src="{{ person.profile_picture.url }}" alt="Profile Image">
+                    <div class="profile-card-body">
+                        <h5>Name: {{ person.name }}</h5>
+                        <p>Age: {{ person.age }}</p>
+                        <p>Gender: {{ person.gender }}</p>
+                        <p>Phone: {{ person.phone }}</p>
+                        <a href="/editprofile" class="btn btn-primary">Edit Profile</a>
+                        <a href="/login" class="btn btn-danger">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+2rO5EofzKxJv3jIdt+5A/lP6fiTN+TE5tbbvXGTCeMSojMEq0L3dWVvoKxNh" crossorigin="anonymous"></script>
 </body>
 </html>

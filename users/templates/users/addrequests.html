@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>User Profile</title>
+    <title>Add Ride</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Nunito&family=Pixelify+Sans&display=swap" rel="stylesheet">
@@ -51,13 +51,13 @@
             display: flex;
             flex-direction: column;
             text-align: center;
-            height: 300px;
+            height: 300px; /* Set a fixed height for each feature */
         }
 
         .feature img {
-            flex: 1;
-            max-height: 100%;
-            object-fit: cover;
+            flex: 1; /* Let the image grow to fill the available space */
+            max-height: 100%; /* Ensure the image doesn't exceed the container height */
+            object-fit: cover; /* Maintain aspect ratio and cover the container */
             margin-bottom: 10px;
         }
         * {
@@ -120,6 +120,10 @@
             display: table;
         }
 
+        .card-body {
+            background-color: rgb(180, 184, 176);
+        }
+
         @media screen and (max-width: 300px) {
             .cancelbtn,
             .signupbtn {
@@ -135,55 +139,50 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
+            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active text-light" aria-current="page" href="/home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/login">Logout</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-6 half-section">
-                <div>
-                    <img src="/static/users/images/langimg.png" alt="Description of the image">
-                </div>
-            </div>
-            <div class="col-md-6 half-section d-flex align-items-center justify-content-center">
-                <div class="flex2">
-                    <form id="createprofileForm" method="post" action="" style="border:1px solid #ccc" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="box-container">
-                            <h1 class="text-center">User Profile</h1>
-                            <p class="text-center">Enter your Credentials.</p>
-                            <hr>
-                            <label for="name"><b>Full Name</b></label>
-                            <input type="text" placeholder="Enter Your Full Name" name="name" required>
 
-                            <label for="age"><b>Your Age</b></label>
-                            <input type="number" placeholder="Your Age" name="age" required>
-
-                            <label for="gender"><b>Gender</b></label>
-                            <input type="text" placeholder="Male / Female" name="gender" id="gender">
-
-                            <label for="phone"><b>Phone</b></label>
-                            <input type="text" placeholder="Your Phone Number" name="phone" id="phone">
-
-                            <label for="profile_picture"><b>Profile Picture</b></label>
-                            <input type="file" name="profile_picture" id="profile_picture" accept="image/*" required>
-
-                            <div class="clearfix">{% csrf_token %}
-                                <button type="submit" class="btn btn-primary signupbtn">Sign Up</button>
+    <div class="container mt-5 ">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header text-center card-body">
+                        <h3>Add Ride</h3>
+                    </div>
+                    <div class="card-body ">
+                        <form method="post" action="" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="tripDate" class="form-label">Trip Date and Time</label>
+                                <input type="datetime-local" class="form-control" id="tripDate" name="trip_date_time" required>
                             </div>
-                      </div>
-                    </form>
-
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <input type="text" class="form-control" id="description" name="desc" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="passengers" class="form-label">Number of Passengers</label>
+                                <input type="number" class="form-control" id="passengers" name="no_passengers" required>
+                            </div>
+                            <!-- Add more fields based on your model -->
+                            <button type="submit" class="btn btn-primary">Add Ride</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+2rO5EofzKxJv3jIdt+5A/lP6fiTN+TE5tbbvXGTCeMSojMEq0L3dWVvoKxNh" crossorigin="anonymous"></script>
-    {% for message in messages %}
-    <div class="alert alert-danger" role="alert">
-        {{ message }}
-    </div>
-    {% endfor %}
 </body>
 </html>

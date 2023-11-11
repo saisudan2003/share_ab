@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Nunito&family=Pixelify+Sans&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: antiquewhite;
+        }
+        .navbar {
+            background-color: black;
+        }
+        .logo {
+            margin-left: 20px;
+            font-family: 'Dancing Script', cursive;
+            font-family: 'Nunito', sans-serif;
+            font-family: 'Pixelify Sans', sans-serif;
+            font-size: large;
+        }
+        .navbar-brand {
+            margin-right: 20px;
+            padding: 10px;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+        .navbar-nav {
+            margin-right: 60px;
+            padding-right: 30px;
+        }
+        .nav-link {
+            margin: 0 10px;
+            padding: 10px;
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #ffc107;
+        }
+        .navbar-brand:hover {
+            color: #ffc107;
+        }
+        .feature {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            height: 300px; /* Set a fixed height for each feature */
+        }
+        .feature img {
+            flex: 1; /* Let the image grow to fill the available space */
+            max-height: 100%; /* Ensure the image doesn't exceed the container height */
+            object-fit: cover; /* Maintain aspect ratio and cover the container */
+            margin-bottom: 10px;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        .card-body {
+            background-color: rgb(156, 146, 134);
+        }
+        .custom-card {
+            width: 70%;
+            margin: 0 auto;
+            background-color: rgb(156, 146, 134);
+            transition: transform 0.3s ease;
+        }
+        
+        .custom-card:hover {
+            transform: scale(1.1);
+        }
+        .btn-send-request {
+            background-color: #04AA6D;
+            color: rgb(184, 104, 104);
+            padding: 8px 12px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-send-request:hover {
+            opacity: 0.9;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Intercept the form submission to send the message via AJAX
+            $('#send-message-form').submit(function (event) {
+                event.preventDefault();
+
+                // Collect form data
+                var receiverId = $('#receiver-id').val();
+                var requestId = $('#request-id').val();
+                var messageText = $('#message-text').val();
+
+                // Send AJAX request
+                $.ajax({
+                    type: 'POST',
+                    url: '/send_message/',  // Update this URL based on your Django URL pattern
+                    data: {
+                        receiver_id: receiverId,
+                        request_id: requestId,
+                        message: messageText,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.status === 'success') {
+                            // Assuming you have a function to append the new message to the message box
+                            appendMessage(messageText);
+                            // Clear the input field
+                            $('#message-text').val('');
+                        } else {
+                            console.error('Failed to send message');
+                        }
+                    },
+                    error: function (error) {
+                        console.error('Error in AJAX request');
+                    }
+                });
+            });
+
+            // Function to append a new message to the message box
+            function appendMessage(message) {
+                // Add your logic here to append the message to the message box
+                console.log('Message sent:', message);
+            }
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand text-light logo" href="#">Cab-Share</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active text-light" aria-current="page" href="/profile">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/myrequests">My Requests</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="#">My Pool Request</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="/login">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            {% for request in requests %}
+                <div class="col-md-9 mb-3 custom-card">
+                    <div class="card">
+                        <div class="card-header text-center card-body">
+                            <h5>{{ request.desc }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Date and Time: {{ request.trip_date_time }}</p>
+                            <p>No. of Passengers: {{ request.no_passengers }}</p>
+                            <p>Request Owner: {{ request.request_owner.username }}</p>
+                            <!-- Add more fields based on your model -->
+                            <button class="btn btn-send-request">Send Request</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+2rO5EofzKxJv3jIdt+5A/lP6fiTN+TE5tbbvXGTCeMSojMEq0L3dWVvoKxNh" crossorigin="anonymous"></script>
+</body>
+</html>

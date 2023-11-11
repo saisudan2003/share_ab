@@ -7,7 +7,11 @@ from django.contrib import messages
 from django.conf import settings
 from django.db.utils import IntegrityError
 from django.contrib import messages
-import pyautogui
+from django.utils import timezone
+from django.core.mail import send_mail
+from django.conf import settings
+import random
+import string
 
 
 # Create your views here.
@@ -52,7 +56,7 @@ def signup(request):
                 return render(request,'users/signup.html')
 
             return redirect('createprofile')
-    return render(request,'users/signUp.html')
+    return render(request,'users/signup.html')
 
 def createprofile(request):
     if request.method == "POST":
@@ -85,7 +89,7 @@ def createprofile(request):
 
 def home(request):
     requests = Request.objects.all()
-    return render(request, 'users/homepage.html', {'requests': requests})
+    return render(request, 'users/dashboard.html', {'requests': requests})
 
 def addrequest(request):
     return HttpResponse("addrequest")
@@ -93,7 +97,7 @@ def addrequest(request):
 def myrequests(request):
     user_id = request.user.id
     requests = Request.objects.filter(request_owner=user_id)
-    return render(request, 'users/myrequests.html', {'requests': requests})
+    return render(request, 'users/myrequests_n.html', {'requests': requests})
     
 #---------working---------
 # def myrequests_single(request):
@@ -119,7 +123,7 @@ def myrequests_single(request):
 
     newmessages = [msg for msg in messages if msg.sender.id in valid_sender_ids]
 
-    return render(request, 'users/myrequests_single.html', {
+    return render(request, 'users/myrequests_single_n.html', {
         'selected_request': selected_request,
         'messages': newmessages,
     })
@@ -164,12 +168,121 @@ def sent_requests_status(request):
 def profile(request):
     user_id = request.user.id
     person = Person.objects.get(user_cred_id=user_id)
-    return render(request, 'users/profile.html', {'person': person})
+    return render(request, 'users/profile_n.html', {'person': person})
+
+ # Import the form you need to create
+
+
 
 def editprofile(request):
-    return HttpResponse("edit profile")
+    user_id = request.user.id
+    person = Person.objects.get(user_cred_id=user_id)
+
+    if request.method == 'POST':
+        # Handle form submission
+        person.name = request.POST['name']
+        person.age = request.POST['age']
+        person.gender = request.POST['gender']
+        person.phone = request.POST['phone']
+
+        # Handle the profile picture
+        if 'profile_picture' in request.FILES:
+            person.profile_picture = request.FILES['profile_picture']
+
+        person.save()
+
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('profile')  # Redirect to the same page or any other desired page after saving changes
+
+    return render(request, 'users/editprofile.html', {'person': person})
+
+
 
 def logout_view(request):
     return HttpResponse("logout")
 
+def addrequests(request):
+    
+    if request.method == 'POST':
+        # Get data from the form
+        trip_date_time = request.POST['trip_date_time']
+        desc = request.POST['desc']
+        no_passengers = request.POST['no_passengers']
 
+        # Assuming request_owner should be the currently logged-in user
+        request_owner = request.user
+
+        # Create a new Request object
+        new_request = Request(
+            request_create_date=timezone.now(),
+            trip_date_time=trip_date_time,
+            desc=desc,
+            no_passengers=no_passengers,
+            request_owner=request_owner,
+        )
+
+        new_request.save()
+
+        messages.success(request, 'Request added successfully!')
+        return redirect('profile')  # Redirect to the same page or any other desired page after saving the request
+
+    return render(request, 'users/addrequests.html')  # Replace 'your_template_name' with the actual template name
+
+
+
+
+def reset_password(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        
+        # Check if the email exists in the database
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.warning(request, "Invalid email address. Please provide a valid email.")
+            return render(request, 'users/resetpwd.html')
+
+        # Generate a random password
+        new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+
+        # Set the new password for the user
+        user.set_password(new_password)
+        user.save()
+
+        # Send an email with the new password
+        send_mail(
+            'Password Reset',
+            f'Your new password is: {new_password}',
+            settings.EMAIL_HOST_USER,  # Sender's email address
+            [email],  # Recipient's email address
+            fail_silently=False,
+        )
+
+        messages.success(request, "An email with the new password has been sent to your email address.")
+        return redirect('login')  # Redirect to the login page
+
+    return render(request, 'users/resetpwd.html')
+
+
+from django.http import JsonResponse
+from .models import Message
+
+def send_message(request):
+    if request.method == 'POST' and request.is_ajax():
+        sender = request.user
+        receiver_id = request.POST.get('receiver_id')
+        request_id = request.POST.get('request_id')
+        message_text = request.POST.get('message')
+
+        # Create a new message
+        message = Message.objects.create(
+            sender=sender,
+            receiver_id=receiver_id,
+            request_id=request_id,
+            message=message_text,
+            message_date=timezone.now()  # You may need to import timezone
+        )
+
+        return JsonResponse({'status': 'success', 'message_id': message.id})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})

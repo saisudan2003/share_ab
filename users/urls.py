@@ -15,8 +15,10 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('editprofile/', views.editprofile, name='editprofile'),
     path('logout/', views.logout_view, name='logout'),
+    path('send_message/<int:request_id>/', views.send_message, name='send_message'),
     path('accept_request/', views.accept_request, name='accept_request'),
     path('decline_request/', views.decline_request, name='decline_request'),
+    path('view_user_profile/', views.view_user_profile, name='view_user_profile'),
 ]
 
 

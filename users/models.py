@@ -39,6 +39,6 @@ class Message(models.Model):
 
 class Requested_users_status(models.Model):
     id = models.AutoField(primary_key=True)
-    user = models.ManyToManyField(User, related_name='request_status')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requested_user', default=1)
     request = models.ForeignKey(Request, on_delete=models.CASCADE)
     status = models.IntegerField(default=0)

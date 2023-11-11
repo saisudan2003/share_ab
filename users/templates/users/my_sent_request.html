@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Sent Request Status</title>
+</head>
+<body>
+    <h1>My Sent Request Status</h1>
+
+    {% for data in request_data %}
+        <div>
+            <p>Request Owner: {{ data.request_owner.username }}</p>
+            <p>Trip Date Time: {{ data.trip_date_time }}</p>
+            <p>Message: {{ data.latest_message }}</p>
+            <p>Message Date: {{ data.latest_message_date }}</p>
+            
+            {% if data.status == 0 %}
+                <p>Status: Pending</p>
+            {% elif data.status == -1 %}
+                <p>Status: Declined</p>
+            {% elif data.status == 1 %}
+                <p>Status: Accepted</p>
+            {% endif %}
+            
+            <!-- Add more information as needed -->
+        </div>
+        <hr>
+    {% endfor %}
+    
+</body>
+</html>

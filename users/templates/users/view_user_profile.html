@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View User Profile</title>
+</head>
+<body>
+    <h1>View User Profile</h1>
+
+    <!-- Search User Form -->
+    <form method="post" action="{% url 'view_user_profile' %}">
+        {% csrf_token %}
+        <label for="search_username">Search User:</label>
+        <input type="text" id="search_username" name="search_username" required>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if person %}
+        <!-- Display User Details -->
+        <h2>User Details</h2>
+        <p>Name: {{ person.name }}</p>
+        <p>Phone: {{ person.phone }}</p>
+        <p>Age: {{ person.age }}</p>
+        <p>Gender: {{ person.gender }}</p>
+        <img src="{{ person.profile_picture.url }}" alt="Profile Picture" width="100">
+    {% endif %}
+</body>
+</html>

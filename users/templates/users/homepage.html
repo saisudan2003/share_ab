@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Homepage</title>
 </head>
 <body>
     <h1>Homepage</h1>
@@ -11,7 +11,20 @@
         <li><a href="{% url 'profile' %}">Profile</a></li>
         <li><a href="{% url 'myrequests' %}">My Requests</a></li>
         <li><a href="{% url 'sent_requests_status' %}">My Sent Request Status</a></li>
+        <li><a href="{% url 'view_user_profile' %}">Search User</a></li>
     </ul>
+
+    <!-- Search Bar -->
+    <form method="get" action="{% url 'home' %}">
+        <label for="selected_date">Select Date:</label>
+        <input type="date" id="selected_date" name="selected_date">
+        <button type="submit">Search Now</button>
+    </form>
+
+    <!-- View All Requests Button -->
+    <form method="get" action="{% url 'home' %}">
+        <button type="submit">View All Requests</button>
+    </form>
 
     <h2>All Requests</h2>
     <ul>
@@ -21,6 +34,13 @@
                 Trip Date/Time: {{ request.trip_date_time }}<br>
                 Number of Passengers: {{ request.no_passengers }}<br>
                 Description: {{ request.desc }}<br>
+                
+                <!-- Form to send a request -->
+                <form method="post" action="{% url 'send_message' request.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="request_id" value="{{ request.id }}">
+                    <button type="submit">Send Request</button>
+                </form>
             </li>
         {% endfor %}
     </ul>
